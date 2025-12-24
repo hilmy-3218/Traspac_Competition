@@ -22,6 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($nama)) $errors[] = "Nama wajib diisi.";
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Email tidak valid.";
     if (strlen($password) < 6) $errors[] = "Password minimal 6 karakter.";
+    if (!preg_match('/[A-Za-z]/', $password) || !preg_match('/[0-9]/', $password)) {
+        $errors[] = "Password harus mengandung kombinasi huruf dan angka.";
+    }
     if ($password !== $konfirmasi_password) $errors[] = "Konfirmasi password tidak cocok.";
     if ($role == "guru" && $guru_password !== "merdeka") $errors[] = "Password khusus guru salah.";
 
