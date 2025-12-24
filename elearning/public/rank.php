@@ -7,25 +7,18 @@ require_once __DIR__ . '/../config/db.php';
 
 // Proteksi halaman: user wajib login
 if (!isset($_SESSION['user_id'])) {
-    // Jika belum login, arahkan ke halaman login
     header("Location: ../auth/login.php");
     exit;
 }
 
-// Mengambil ID user dari sesi
 $user_id = $_SESSION['user_id'];
 
 try {
     // Menyiapkan query untuk mengambil data user berdasarkan ID
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = :id LIMIT 1");
-    
-    // Menjalankan query dengan parameter ID user
     $stmt->execute(['id' => $user_id]);
-    
-    // Mengambil data user dalam bentuk array asosiatif
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Jika data user tidak ditemukan, redirect ke login
     if (!$user) {
         header("Location: ../auth/login.php");
         exit;
@@ -35,12 +28,9 @@ try {
     $nama      = htmlspecialchars($user['nama'] ?? 'Pengguna');
     $role      = htmlspecialchars($user['role'] ?? 'Tidak Diketahui');
     $jurusan   = htmlspecialchars($user['jurusan'] ?? 'Umum');
-    $email     = htmlspecialchars($user['email'] ?? 'email@contoh.com');
-    
-    // Mengambil huruf pertama dari nama sebagai inisial avatar
-    $initial   = strtoupper(substr($nama, 0, 1));
+    $initial   = strtoupper(substr($nama, 0, 1)); // Inisial nama untuk avatar
 
-    // Peta warna avatar (background dan border)
+    // Peta warna background dan border avatar
     $warna_map = [
         "bg-red-500" => "border-red-500",
         "bg-yellow-500" => "border-yellow-500",
@@ -52,93 +42,86 @@ try {
         "bg-pink-500" => "border-pink-500"
     ];
 
-    // Jika warna avatar belum disimpan di sesi
+    // Set warna avatar acak sekali per sesi
     if (!isset($_SESSION['avatar_bg'])) {
-        // Memilih warna secara acak
-        $bg_random = array_rand($warna_map);
-        
-        // Menyimpan warna background avatar ke sesi
+        $bg_random = array_rand($warna_map); // Ambil warna acak
         $_SESSION['avatar_bg'] = $bg_random;
-        
-        // Menyimpan warna border avatar ke sesi
         $_SESSION['avatar_border'] = $warna_map[$bg_random];
     }
 
-    // Mengambil warna avatar dari sesi
+    // Ambil warna avatar dari session
     $bg_random = $_SESSION['avatar_bg'];
     $border_random = $_SESSION['avatar_border'];
 
-    // Mengecek apakah user memiliki foto profil
-    $foto = !empty($user['foto_profil']) 
-        ? "../" . htmlspecialchars($user['foto_profil']) 
-        : null;
+    // Tentukan foto profil, gunakan default jika tidak ada
+    $foto = !empty($user['foto_profil']) ? "../" . htmlspecialchars($user['foto_profil']) : null;
 
-    // Query untuk mengambil data ranking siswa berdasarkan jurusan
+    // Query ranking siswa berdasarkan progres dan nilai
     $queryRank = "SELECT 
                     u.id, 
                     u.nama, 
                     u.foto_profil, 
-                    COALESCE(MAX(h.nilai), 0) as nilai_ujian, 
-                    COALESCE(AVG(q.nilai_persen), 0) as avg_kuis, 
-                    COUNT(DISTINCT q.materi_id) as kuis_selesai 
-                  FROM users u 
-                  LEFT JOIN hasil_ujian h ON u.id = h.siswa_id 
-                  LEFT JOIN quiz_scores q ON u.id = q.user_id 
-                  WHERE u.role = 'siswa' AND u.jurusan = :jurusan 
-                  GROUP BY u.id 
-                  ORDER BY nilai_ujian DESC, avg_kuis DESC 
-                  LIMIT 10";
+                    COALESCE(MAX(h.nilai), 0) as nilai_ujian, -- Nilai ujian tertinggi
+                    COALESCE(AVG(q.nilai_persen), 0) as avg_kuis, -- Rata-rata nilai kuis
+                    COUNT(DISTINCT q.materi_id) as kuis_selesai -- Jumlah kuis selesai
+                FROM users u 
+                LEFT JOIN hasil_ujian h ON u.id = h.siswa_id 
+                LEFT JOIN quiz_scores q ON u.id = q.user_id 
+                WHERE u.role = 'siswa' AND u.jurusan = :jurusan 
+                GROUP BY u.id 
+                ORDER BY kuis_selesai DESC, avg_kuis DESC, nilai_ujian DESC 
+                LIMIT 10"; // Ambil 10 siswa teratas
 
-    // Menyiapkan query ranking
+
+    // Siapkan dan jalankan query ranking berdasarkan jurusan user
     $stmtRank = $pdo->prepare($queryRank);
-    
-    // Menjalankan query ranking dengan parameter jurusan
     $stmtRank->execute(['jurusan' => $user['jurusan']]);
-    
-    // Mengambil seluruh hasil ranking
+
+    // Ambil seluruh data ranking dalam bentuk array asosiatif
     $rankings = $stmtRank->fetchAll(PDO::FETCH_ASSOC);
 
-    // Fungsi untuk menentukan gelar siswa berdasarkan performa
+    // Fungsi untuk menentukan gelar berdasarkan progres, rata-rata nilai, dan nilai ujian
     function getGelar($selesai, $avg, $exam) {
-        // Gelar KING
+        // Level tertinggi
         if ($selesai >= 5 && $avg >= 90 && $exam >= 90) 
             return ['title' => 'KING', 'icon' => 'fa-crown', 'color' => 'text-amber-500', 'bg' => 'bg-amber-100'];
-        
-        // Gelar Juara
+
+        // Juara dengan nilai tinggi
         if ($selesai >= 5 && $avg >= 80 && $exam >= 85) 
             return ['title' => 'Juara', 'icon' => 'fa-trophy', 'color' => 'text-yellow-500', 'bg' => 'bg-yellow-50'];
-        
-        // Gelar Spesialis
+
+        // Spesialis tanpa syarat ujian
         if ($selesai >= 5 && $avg >= 80) 
             return ['title' => 'Spesialis', 'icon' => 'fa-graduation-cap', 'color' => 'text-blue-500', 'bg' => 'bg-blue-50'];
-        
-        // Gelar Fondasi
+
+        // Fondasi dasar pembelajaran
         if ($selesai >= 5) 
             return ['title' => 'Fondasi', 'icon' => 'fa-book', 'color' => 'text-orange-500', 'bg' => 'bg-orange-50'];
-        
-        // Gelar API
+
+        // Progress menengah
         if ($selesai >= 3 && $avg >= 78) 
             return ['title' => 'API', 'icon' => 'fa-fire', 'color' => 'text-orange-600', 'bg' => 'bg-orange-50'];
-        
-        // Jika tidak memenuhi syarat gelar
+
+        // Tidak mendapat gelar
         return null;
     }
 
-} catch (PDOException $e) {
-    // Menampilkan pesan error jika terjadi kesalahan database
-    die("Kesalahan Database: " . $e->getMessage());
-}
+    } catch (PDOException $e) {
+        // Tangani error database
+        die("Kesalahan Database: " . $e->getMessage());
+    }
 
-// Mengambil nama file halaman yang sedang dibuka
-$currentPage = basename($_SERVER['PHP_SELF']);
-?>
+    // Ambil nama file halaman yang sedang diakses
+    $currentPage = basename($_SERVER['PHP_SELF']);
+
+    ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ranking - <?= htmlspecialchars($nama, ENT_QUOTES, 'UTF-8'); ?></title>
+    <title>Ranking - <?= htmlspecialchars($nama); ?></title>
     <link rel="shortcut icon" href="../assets/images/logo.png" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -153,33 +136,29 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     </style>
 </head>
 <body class="min-h-screen flex overflow-x-hidden bg-[#fdfdff] scroll-smooth">
-    <!-- Background glow dekoratif -->
-    <div class="fixed top-0 left-0 w-[400px] h-[400px] bg-blue-500/20 blur-3xl rounded-full 
-                transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0"></div>
-    <div class="fixed bottom-0 right-0 w-[500px] h-[500px] bg-purple-500/20 blur-3xl rounded-full 
-                transform translate-x-1/2 translate-y-1/2 pointer-events-none z-0"></div>
-    <div class="fixed top-1/2 left-0 w-[300px] h-[300px] bg-green-500/20 blur-3xl rounded-full 
-                transform -translate-x-full -translate-y-1/2 pointer-events-none z-0 hidden lg:block"></div>
-    <div class="fixed top-10 left-1/2 w-[250px] h-[250px] bg-yellow-400/20 blur-3xl rounded-full 
-                transform -translate-x-1/2 pointer-events-none z-0 hidden sm:block"></div>
-    <div class="fixed top-0 right-0 w-[350px] h-[350px] bg-pink-500/15 blur-3xl rounded-full 
-                transform translate-x-1/3 -translate-y-1/3 pointer-events-none z-0"></div>
-    <!-- loader -->
+    <div class="fixed top-0 left-0 w-[400px] h-[400px] bg-blue-500/20 blur-3xl rounded-full transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0"></div>
+    <div class="fixed bottom-0 right-0 w-[500px] h-[500px] bg-purple-500/20 blur-3xl rounded-full transform translate-x-1/2 translate-y-1/2 pointer-events-none z-0"></div>
+    
     <div id="top-loader" class="fixed top-0 left-0 h-[3px] w-0 bg-blue-600 z-[9999] transition-all duration-300"></div>
 
+    <!-- START NAVBAR (Header Atas) - HANYA MOBILE (md:hidden) -->
     <header class="fixed top-0 left-0 w-full h-12 bg-gray-800/75 backdrop-blur-md text-white shadow-xl z-40 md:hidden">
         <div class="h-full flex items-center justify-between px-3">
+
+            <!-- Tombol Hamburger -->
             <button id="sidebarToggle" 
                 class="p-1.5 text-gray-300 rounded-lg hover:bg-gray-700 
                     focus:outline-none focus:ring-2 focus:ring-indigo-500 
                     transition duration-150">
                 <i class="fas fa-bars text-lg"></i>
             </button>
-            <div class="flex items-center h-8 sm:h-10 pl-3 sm:pl-4">
+
+            <!-- FOTO PROFIL / INITIAL -->
+            <div class="flex items-center">
                 <?php if ($foto): ?>
                     <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>"
                         class="w-7 h-7 rounded-full object-cover border 
-                                <?= htmlspecialchars($border_random, ENT_QUOTES, 'UTF-8'); ?>"
+                            <?= htmlspecialchars($border_random, ENT_QUOTES, 'UTF-8'); ?>"
                         alt="Foto Profil">
                 <?php else: ?>
                     <div class="w-7 h-7 rounded-full flex items-center justify-center 
@@ -190,9 +169,10 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                     </div>
                 <?php endif; ?>
             </div>
+
         </div>
     </header>
-    <!-- sidebar -->
+
     <?php require_once __DIR__ . '/../private/sidebar.php';?>
 
     <div class="flex-1 overflow-y-auto pt-10 md:pt-0 pb-12 md:ml-64">
@@ -222,72 +202,87 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                     $iconColor = $rankNo == 1 ? 'text-amber-500' : ($rankNo == 2 ? 'text-slate-400' : 'text-orange-500');
                     $badgeColor = $rankNo == 1 ? 'bg-amber-500' : ($rankNo == 2 ? 'bg-slate-400' : 'bg-orange-500');
                 ?>
-                <div class="animate-slide-up <?= $bgColor ?> border rounded-2xl p-4 flex items-center gap-4 shadow-sm">
-                    <!-- Avatar & badge ranking -->
+                <div class="animate-slide-up <?= $bgColor ?> border rounded-2xl p-4 flex items-center gap-4 shadow-sm relative overflow-hidden">
+                    <!-- Wrapper avatar dan badge (posisi relatif) -->
                     <div class="relative flex-shrink-0">
-                        <!-- Foto / inisial -->
+                        <!-- Container foto/avatar user -->
                         <div class="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-white shadow-sm">
-
-                            <!-- Jika ada foto -->
+                            <!-- Jika user memiliki foto -->
                             <?php if ($uFoto): ?>
+                                <!-- Tampilkan foto user (aman dari XSS) -->
                                 <img src="<?= htmlspecialchars($uFoto, ENT_QUOTES, 'UTF-8'); ?>" class="w-full h-full object-cover">
                             <?php else: ?>
-
-                                <!-- Inisial user -->
-                                <div class="w-full h-full flex items-center justify-center
-                                    <?= htmlspecialchars($isCurrentUser ? $bg_random : 'bg-indigo-500', ENT_QUOTES, 'UTF-8'); ?>
-                                    text-white text-xl font-black">
+                                <!-- Avatar huruf inisial jika foto tidak ada -->
+                                <div class="w-full h-full flex items-center justify-center <?= $isCurrentUser ? $bg_random : 'bg-indigo-500' ?> text-white text-xl font-black">
+                                    <!-- Inisial nama user -->
                                     <?= htmlspecialchars(strtoupper(substr($row['nama'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
                                 </div>
-
                             <?php endif; ?>
                         </div>
 
-                        <!-- Badge peringkat -->
-                        <div class="absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center
-                            text-[10px] font-black text-white shadow-md
-                            <?= htmlspecialchars($badgeColor, ENT_QUOTES, 'UTF-8'); ?>">
-                            <?= (int)$rankNo; ?>
+                        <!-- Badge ranking user -->
+                        <div class="absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-md <?= $badgeColor ?>">
+                            <!-- Nomor peringkat -->
+                            <?= htmlspecialchars($rankNo, ENT_QUOTES, 'UTF-8'); ?>
                         </div>
                     </div>
 
-                    <!-- Nama & gelar -->
+                    <!-- Wrapper informasi teks user -->
                     <div class="min-w-0 flex-1">
                         <!-- Nama user -->
                         <h3 class="font-bold text-slate-800 text-sm truncate">
                             <?= htmlspecialchars($row['nama'], ENT_QUOTES, 'UTF-8'); ?>
                         </h3>
-
-                        <!-- Gelar -->
+                        
+                        <!-- Gelar / status user -->
                         <div class="flex items-center gap-1.5 mt-0.5">
-                            <i class="fas <?= htmlspecialchars($gelar['icon'] ?? 'fa-star', ENT_QUOTES, 'UTF-8'); ?> <?= htmlspecialchars($iconColor, ENT_QUOTES, 'UTF-8'); ?> text-[10px]"></i>
+                            <!-- Icon gelar -->
+                            <i class="fas <?= $gelar['icon'] ?? 'fa-star' ?> <?= $iconColor ?> text-[10px]"></i>
+
+                            <!-- Teks gelar -->
                             <span class="text-[9px] font-bold text-slate-500 uppercase truncate">
                                 <?= htmlspecialchars($gelar['title'] ?? 'Siswa Aktif', ENT_QUOTES, 'UTF-8'); ?>
                             </span>
                         </div>
-                    </div>
 
-                    <!-- Skor -->
+                        <!-- Statistik singkat user -->
+                        <div class="flex gap-2 mt-2 opacity-70">
+                            <!-- Jumlah materi/kuis selesai -->
+                            <span class="text-[8px] font-bold bg-white/50 px-1 rounded">
+                                MAT: <?= htmlspecialchars($row['kuis_selesai'], ENT_QUOTES, 'UTF-8'); ?>
+                            </span>
+
+                            <!-- Nilai ujian -->
+                            <span class="text-[8px] font-bold bg-white/50 px-1 rounded">
+                                UJIAN: <?= (int)$row['nilai_ujian'] ?>
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Wrapper nilai rata-rata kuis -->
                     <div class="text-right">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Skor</p>
+                        <!-- Label rata-rata kuis -->
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">
+                            Avg Kuis
+                        </p>
+                        <!-- Nilai rata-rata kuis -->
                         <p class="text-lg font-black text-slate-800 leading-none">
-                            <?= (int) round($row['avg_kuis'], 0); ?>
+                            <?= (int)round($row['avg_kuis']); ?>
                         </p>
                     </div>
-
                 </div>
                 <?php endforeach; ?>
             </div>
 
-            <div class="bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl overflow-hidden shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)]">
+            <div class="bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
                             <tr class="border-b border-slate-100 bg-slate-50/50">
-                                <th class="py-3 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-16">Pos</th>
-                                <th class="py-3 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Siswa</th>
-                                <th class="py-3 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center hidden sm:table-cell">Progres</th>
-                                <th class="py-3 px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Skor</th>
+                                <th class="py-3 px-6 text-[10px] font-bold text-slate-400 uppercase w-16">Pos</th>
+                                <th class="py-3 px-2 text-[10px] font-bold text-slate-400 uppercase">Siswa</th>
+                                <th class="py-3 px-4 text-[10px] font-bold text-slate-400 uppercase text-center hidden sm:table-cell">Materi</th>
+                                <th class="py-3 px-4 text-[10px] font-bold text-slate-400 uppercase text-center hidden sm:table-cell">Ujian</th>
+                                <th class="py-3 px-6 text-[10px] font-bold text-slate-400 uppercase text-right">Avg Kuis</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
@@ -295,82 +290,69 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                                 $rankNo = $index + 4;
                                 $isUser = ($row['id'] == $user_id);
                                 $gelar = getGelar($row['kuis_selesai'], $row['avg_kuis'], $row['nilai_ujian']);
-                                $rowInitial = strtoupper(substr($row['nama'], 0, 1));
-                                $perf = ($row['avg_kuis'] / 100) * 100;
+                                $uFoto = !empty($row['foto_profil']) && file_exists("../" . $row['foto_profil']) ? "../" . $row['foto_profil'] : null;
                             ?>
-                            <tr class="rank-row transition-none <?= $isUser ? 'bg-indigo-50/30' : '' ?>">
+                            <tr class="<?= $isUser ? 'bg-indigo-50/30' : '' ?>">
                                 <td class="py-3 px-6">
-                                    <!-- Nomor ranking -->
-                                    <span class="text-sm font-extrabold text-slate-300">#<?= (int)$rankNo ?></span>
+                                    <span class="text-sm font-extrabold text-slate-300">#<?= $rankNo ?></span>
                                 </td>
                                 <td class="py-2 px-2">
+                                    <!-- Wrapper utama avatar dan info user -->
                                     <div class="flex items-center gap-3">
-                                        <!-- Avatar ranking -->
-                                        <div class="relative flex-shrink-0">
-
-                                            <!-- Container avatar -->
-                                            <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm overflow-hidden
-                                                <?= htmlspecialchars($isUser ? 'ring-2 ring-indigo-100' : 'bg-slate-100 text-slate-500', ENT_QUOTES, 'UTF-8'); ?>">
-
-                                                <!-- Ambil foto profil -->
-                                                <?php
-                                                $uFoto = !empty($row['foto_profil']) && file_exists("../" . $row['foto_profil'])
-                                                    ? "../" . $row['foto_profil']
-                                                    : null;
-                                                ?>
-
-                                                <!-- Jika ada foto -->
-                                                <?php if ($uFoto): ?>
-                                                    <img src="<?= htmlspecialchars($uFoto, ENT_QUOTES, 'UTF-8'); ?>" class="w-full h-full object-cover">
-                                                <?php else: ?>
-
-                                                    <!-- Inisial user -->
-                                                    <div class="w-full h-full flex items-center justify-center
-                                                        <?= htmlspecialchars($isUser ? $bg_random : 'bg-slate-200 text-slate-500', ENT_QUOTES, 'UTF-8'); ?>">
-                                                        <?= htmlspecialchars($rowInitial, ENT_QUOTES, 'UTF-8'); ?>
-                                                    </div>
-
-                                                <?php endif; ?>
-                                            </div>
+                                        <!-- Container avatar user -->
+                                        <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm overflow-hidden <?= $isUser ? 'ring-2 ring-indigo-100' : 'bg-slate-100' ?>">
+                                            <!-- Jika user memiliki foto -->
+                                            <?php if ($uFoto): ?>
+                                                <!-- Tampilkan foto user -->
+                                                <img src="<?= htmlspecialchars($uFoto, ENT_QUOTES, 'UTF-8'); ?>" class="w-full h-full object-cover">
+                                            <?php else: ?>
+                                                <!-- Avatar inisial jika foto tidak ada -->
+                                                <div class="w-full h-full flex items-center justify-center text-white <?= $isUser ? $bg_random : 'bg-slate-200 text-slate-500' ?>">
+                                                    <?= htmlspecialchars(strtoupper(substr($row['nama'], 0, 1)), ENT_QUOTES, 'UTF-8'); ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
 
-                                        <!-- Nama & gelar user -->
+                                        <!-- Wrapper teks nama dan gelar -->
                                         <div class="min-w-0">
-                                            <!-- Nama & icon user saat ini -->
+                                            <!-- Baris nama dan indikator user aktif -->
                                             <div class="flex items-center gap-1.5">
+
+                                                <!-- Nama user -->
                                                 <h4 class="text-xs font-bold text-slate-700 truncate">
                                                     <?= htmlspecialchars($row['nama'], ENT_QUOTES, 'UTF-8'); ?>
                                                 </h4>
-                                                <?php if ($isUser): ?>
-                                                    <i class="fas fa-check-circle text-indigo-500 text-[10px]"></i>
+
+                                                <!-- Icon penanda user sendiri -->
+                                                <?php if ($isUser): ?> 
+                                                    <i class="fas fa-check-circle text-indigo-500 text-[10px]"></i> 
                                                 <?php endif; ?>
+
                                             </div>
 
-                                            <!-- Gelar / status -->
-                                            <p class="text-[9px] font-semibold text-slate-400 uppercase tracking-tight">
+                                            <!-- Gelar / status user -->
+                                            <p class="text-[9px] font-semibold text-slate-400 uppercase">
                                                 <?= htmlspecialchars($gelar['title'] ?? 'Siswa Aktif', ENT_QUOTES, 'UTF-8'); ?>
                                             </p>
-
                                         </div>
                                     </div>
                                 </td>
-                                <!-- Progress bar performa -->
-                                <td class="py-2 px-4 hidden sm:table-cell">
-                                    <div class="flex items-center justify-center gap-2">
-
-                                        <!-- Bar visual -->
-                                        <div class="h-[6px] w-[60px] bg-slate-100 rounded-full overflow-hidden">
-                                            <div class="h-full rounded-full bg-indigo-500" style="width: <?= (float)$perf ?>%"></div>
-                                        </div>
-
-                                        <!-- Persentase performa -->
-                                        <span class="text-[9px] font-bold text-slate-400"><?= (int) round($perf); ?>%</span>
-                                    </div>
+                                <td class="py-2 px-4 text-center hidden sm:table-cell">
+                                    <span class="text-xs font-bold text-slate-600">
+                                        <?= htmlspecialchars($row['kuis_selesai'], ENT_QUOTES, 'UTF-8'); ?>
+                                    </span>
                                 </td>
 
-                                <!-- Skor rata-rata -->
+                                <td class="py-2 px-4 text-center hidden sm:table-cell">
+                                    <span class="text-xs font-bold text-slate-600">
+                                        <?= (int)$row['nilai_ujian']; ?>
+                                    </span>
+                                </td>
+
                                 <td class="py-2 px-6 text-right">
-                                    <span class="text-sm font-black text-slate-700"><?= (int) round($row['avg_kuis'], 0); ?></span>
+                                    <span class="text-sm font-black text-indigo-600">
+                                        <?= (int)round($row['avg_kuis']); ?>
+                                    </span>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -378,25 +360,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                     </table>
                 </div>
             </div>
-
-            <div class="mt-6 flex flex-wrap gap-4 justify-center md:justify-start">
-                <div class="flex items-center gap-1.5">
-                    <div class="w-2 h-2 rounded-full bg-amber-500"></div>
-                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-nowrap">Master</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
-                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-nowrap">Siswa Pro</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <div class="w-2 h-2 rounded-full bg-slate-200"></div>
-                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-nowrap">Pemula</span>
-                </div>
-            </div>
         </main>
     </div>
-    <!-- BOTTOM NAVIGATION BAR (Hanya di Mobile) -->
-    <?php require_once __DIR__ . '/../private/nav-bottom.php';?>
 
+    <?php require_once __DIR__ . '/../private/nav-bottom.php';?>
 </body>
 </html>
