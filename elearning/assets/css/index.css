@@ -1,0 +1,208 @@
+html {
+    scroll-behavior: smooth;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden; /* Mencegah scroll horizontal */
+    min-height: 100vh;
+}
+/* Animasi Umum (Digunakan untuk Hero Section yang selalu terlihat) */
+.hero-text-animation {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInSlide 0.6s ease-out forwards;
+}
+
+@keyframes fadeInSlide {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Animasi Dekorasi */
+.spin-icon { animation: spin 8s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.float-icon { animation: float 6s ease-in-out infinite alternate; }
+    @keyframes float { 0% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-10px) translateX(5px); } 100% { transform: translateY(0) translateX(0); } }
+
+/* Custom Scrollbar untuk Jurusan Horizontal Scroll */
+.horizontal-scroll-snap::-webkit-scrollbar { height: 8px; }
+.horizontal-scroll-snap::-webkit-scrollbar-track { background: #1f2937; border-radius: 10px; }
+.horizontal-scroll-snap::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
+.horizontal-scroll-snap::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+
+.btn-primary { transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+.btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); }
+
+/* Gaya Khusus untuk Modal Glassmorphism */
+.glass-modal-overlay {
+    background-color: rgba(0, 0, 0, 0.7); 
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px); 
+    transition: opacity 0.3s ease-in-out;
+}
+
+.glass-modal-content {
+    background-color: rgba(255, 255, 255, 0.1); 
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border-radius: 1rem;
+    transform: scale(0.9);
+    transition: transform 0.3s ease-in-out;
+}
+
+.glass-modal-content.is-open {
+    transform: scale(1);
+}
+
+/* Gaya Khusus: Indikator Navigasi Aktif   */
+.nav-link-desktop {
+    position: relative;
+    padding-bottom: 8px; 
+    display: inline-block;
+}
+
+.nav-link-desktop::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; /* Jarak dari bawah link */
+    left: 50%;
+    width: 0%; /* Mulai dari lebar 0 */
+    height: 3px;
+    background-color: #6366f1; /* Warna Indigo */
+    border-radius: 2px;
+    transition: width 0.3s ease-in-out, left 0.3s ease-in-out; 
+}
+
+.nav-link-desktop.active::after {
+    width: 100%; /* Lebar penuh saat aktif */
+    left: 0;
+}
+
+/* Kelas Dasar untuk elemen yang akan dianimasikan saat scroll */
+.scroll-animate {
+    opacity: 0;
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* Animasi Slide dari Kiri */
+.slide-in-left {
+    transform: translateX(-50px);
+}
+
+/* Animasi Slide dari Kanan */
+.slide-in-right {
+    transform: translateX(50px);
+}
+
+/* Kelas yang diterapkan JS saat elemen masuk viewport */
+.scroll-animate.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Custom Glass Scrollbar */
+#modal-content-box::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track: Latar belakang scrollbar dibuat transparan */
+#modal-content-box::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(4px); 
+    border-radius: 10px;
+    margin: 10px 0; 
+}
+
+#modal-content-box::-webkit-scrollbar-thumb {
+    background: rgba(48, 49, 74, 0.3);
+    backdrop-filter: blur(8px);
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Efek saat batang geser disentuh atau di-hover */
+#modal-content-box::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 57, 79, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+.elc-window { 
+    /* Glassmorphism background lebih terang (transparansi putih 15%) */
+    background: rgba(255, 255, 255, 0.15); 
+    backdrop-filter: blur(15px); 
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: absolute; 
+    min-width: 320px;
+    min-height: 400px;
+    max-width: 90vw;
+    max-height: 90vh;
+    width: 400px; 
+    height: 550px; 
+    z-index: 100;
+    overflow: hidden; 
+}
+
+/* Gaya untuk area chat - Menggunakan prefix elc- */
+.elc-chat-area { 
+    height: calc(100% - 88px); 
+    overflow-y: auto; 
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.05); 
+}
+
+/* Gaya untuk pesan User (Biru) - Tidak berubah, sudah cocok dengan dark theme */
+.elc-message-user { 
+    background-color: rgba(66, 153, 225, 0.9); 
+    color: white;
+    border-radius: 12px 12px 0 12px;
+    max-width: 80%;
+    margin-left: auto;
+    align-self: flex-end;
+    word-wrap: break-word; 
+}
+
+/* Gaya untuk pesan System/Bot (Perubahan besar untuk dark theme) - Menggunakan prefix elc- */
+.elc-message-system { 
+    background-color: rgba(74, 85, 104, 0.95); 
+    color: #ffffff;
+    border-radius: 12px 12px 12px 0;
+    max-width: 80%;
+    margin-right: auto;
+    align-self: flex-start;
+    word-wrap: break-word;
+}
+
+/* Gaya untuk pegangan resize di pojok kanan bawah - Menggunakan prefix elc- */
+.elc-resize-handle { 
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 15px;
+    height: 15px;
+    cursor: nwse-resize; 
+    background: rgba(255, 255, 255, 0.2); 
+    border-radius: 0 0 1rem 0;
+    user-select: none;
+    touch-action: none; 
+}
+
+/* Gaya untuk tombol rekomendasi */
+.elc-rec-btn {
+    word-wrap: break-word;
+    white-space: normal;
+    background-color: rgba(66, 153, 225, 0.2); /* Biru transparan */
+    color: #ffffff; /* Teks putih */
+    border: 1px solid rgba(66, 153, 225, 0.5); /* Border biru */
+}
+
+.elc-rec-btn:hover:not(.elc-disabled) {
+    background-color: rgba(66, 153, 225, 0.4); /* Biru sedikit lebih padat saat hover */
+}
+
+/* Gaya untuk tombol yang dinonaktifkan */
+.elc-disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
