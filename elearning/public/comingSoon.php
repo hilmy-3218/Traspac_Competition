@@ -116,7 +116,7 @@ if (!isset($_SESSION['user_id'])) {
             <div class="w-12 h-[2px] bg-blue-500/20 mb-6 mx-auto"></div>
 
             <p class="max-w-md text-slate-500 dark:text-slate-400 text-sm md:text-base leading-relaxed mb-8 font-normal">
-                Mempersiapkan <span class="text-slate-900 dark:text-slate-200 font-semibold">generasi unggul</span> melalui modul interaktif, praktik industri, dan sertifikasi dalam satu genggaman.
+                Mempersiapkan <span class="text-slate-900 dark:text-slate-200 font-semibold">generasi unggul</span> melalui modul interaktif dan praktik industri dalam satu genggaman.
             </p>
 
             <div class="pt-6 border-t border-slate-100 dark:border-slate-800 w-full max-w-[100px]">
