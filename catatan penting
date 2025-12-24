@@ -1,0 +1,5 @@
+instal composer di bagian Windows Installer
+https://getcomposer.org/download/
+
+ketik ini di terminal folder elearning
+composer require phpmailer/phpmailer
