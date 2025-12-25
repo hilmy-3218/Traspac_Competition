@@ -61,7 +61,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pengaturan Aplikasi Interaktif</title>
+    <title>Pengaturan</title>
     <link rel="shortcut icon" href="../assets/images/logo.png" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJzLcl98jS290e2D91X3wR50wU138Vz1N1K/2T0M7Cg+lqj2Q/9Zf+A5I9+Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -306,4 +306,5 @@ try {
     <!-- BOTTOM NAVIGATION BAR (Hanya di Mobile) -->
     <?php require_once __DIR__ . '/../private/nav-bottom.php';?>
 </body>
+
 </html>
