@@ -26,6 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors[] = "Password harus mengandung kombinasi huruf dan angka.";
     }
     if ($password !== $konfirmasi_password) $errors[] = "Konfirmasi password tidak cocok.";
+    //password guru
     if ($role == "guru" && $guru_password !== "merdeka") $errors[] = "Password khusus guru salah.";
 
     // 2. Cek duplikasi email
@@ -72,7 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $verif_link = "http://localhost/elearning/auth/verifikasi.php?token=" . $token;
 
             $mail->Subject = 'Verifikasi Akun - Sistem Sekolah';
-            // Desain Email HTML yang lebih menarik
+            // Desain Email HTML 
             $mail->Body    = "
             <div style='font-family: sans-serif; background-color: #f0f9ff; padding: 40px; text-align: center;'>
                 <div style='max-width: 500px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);'>
@@ -388,3 +389,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </script>
 </body>
 </html>
+
