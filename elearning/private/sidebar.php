@@ -63,23 +63,24 @@ if (basename($_SERVER['PHP_SELF']) === basename(__FILE__)) {
 
     <!-- Profil Mini di Sidebar -->
     <div class="p-4 flex items-center border-b border-gray-700">
-        <?php if (!empty($foto) && filter_var($foto, FILTER_VALIDATE_URL)): ?>
-            <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>"
+        <?php if ($foto): ?>
+            <img
+                src="<?php echo htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>"
                 class="w-10 h-10 rounded-full object-cover border-2"
-                alt="Foto Profil">
+                alt="Foto Profil"
+            >
         <?php else: ?>
-            <div class="w-10 h-10 rounded-full flex items-center justify-center 
-                        text-white text-lg font-bold border-2 
-                        <?= htmlspecialchars($bg_random, ENT_QUOTES, 'UTF-8'); ?>">
-                <?= htmlspecialchars($initial, ENT_QUOTES, 'UTF-8'); ?>
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-lg font-bold border-2 <?php echo htmlspecialchars($bg_random, ENT_QUOTES, 'UTF-8'); ?>">
+                <?php echo htmlspecialchars($initial, ENT_QUOTES, 'UTF-8'); ?>
             </div>
         <?php endif; ?>
+
         <div class="ml-3">
             <p class="text-sm font-semibold truncate">
-                <?= htmlspecialchars($nama, ENT_QUOTES, 'UTF-8'); ?>
+                <?php echo htmlspecialchars($nama, ENT_QUOTES, 'UTF-8'); ?>
             </p>
             <p class="text-xs text-gray-400 capitalize">
-                <?= htmlspecialchars($role, ENT_QUOTES, 'UTF-8'); ?>
+                <?php echo htmlspecialchars($role, ENT_QUOTES, 'UTF-8'); ?>
             </p>
         </div>
     </div>
@@ -192,3 +193,4 @@ if (basename($_SERVER['PHP_SELF']) === basename(__FILE__)) {
     });
 
 </script>
+
