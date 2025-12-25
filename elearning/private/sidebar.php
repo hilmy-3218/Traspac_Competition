@@ -63,20 +63,24 @@ if (basename($_SERVER['PHP_SELF']) === basename(__FILE__)) {
 
     <!-- Profil Mini di Sidebar -->
     <div class="p-4 flex items-center border-b border-gray-700">
-        <?php if ($foto): ?>
-            <img src="<?php echo $foto; ?>"
+        <?php if (!empty($foto) && filter_var($foto, FILTER_VALIDATE_URL)): ?>
+            <img src="<?= htmlspecialchars($foto, ENT_QUOTES, 'UTF-8'); ?>"
                 class="w-10 h-10 rounded-full object-cover border-2"
                 alt="Foto Profil">
         <?php else: ?>
             <div class="w-10 h-10 rounded-full flex items-center justify-center 
                         text-white text-lg font-bold border-2 
-                        <?php echo $bg_random; ?>">
-                <?php echo $initial; ?>
+                        <?= htmlspecialchars($bg_random, ENT_QUOTES, 'UTF-8'); ?>">
+                <?= htmlspecialchars($initial, ENT_QUOTES, 'UTF-8'); ?>
             </div>
         <?php endif; ?>
         <div class="ml-3">
-            <p class="text-sm font-semibold truncate"><?php echo $nama; ?></p>
-            <p class="text-xs text-gray-400 capitalize"><?php echo $role; ?></p>
+            <p class="text-sm font-semibold truncate">
+                <?= htmlspecialchars($nama, ENT_QUOTES, 'UTF-8'); ?>
+            </p>
+            <p class="text-xs text-gray-400 capitalize">
+                <?= htmlspecialchars($role, ENT_QUOTES, 'UTF-8'); ?>
+            </p>
         </div>
     </div>
 
@@ -87,44 +91,44 @@ if (basename($_SERVER['PHP_SELF']) === basename(__FILE__)) {
     ?>
     <nav class="flex-1 p-4 space-y-1 overflow-y-auto overflow-x-hidden nav-scroll-area">
 
-        <a href="dashboard.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?php echo ($currentPage === 'dashboard.php') ? $activeClass : $inactiveClass; ?>">
+        <a href="dashboard.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?= htmlspecialchars(($currentPage === 'dashboard.php') ? $activeClass : $inactiveClass, ENT_QUOTES, 'UTF-8'); ?>">
             <i class="fas fa-home fa-icon-sm mr-3"></i>
             Dashboard
         </a>
 
-        <a href="diskusi.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?php echo ($currentPage === 'diskusi.php') ? $activeClass : $inactiveClass; ?>">
+        <a href="diskusi.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?= htmlspecialchars(($currentPage === 'diskusi.php') ? $activeClass : $inactiveClass, ENT_QUOTES, 'UTF-8'); ?>">
             <i class="fas fa-comments fa-icon-sm mr-3"></i>
             Diskusi
         </a>
 
-        <a href="pengumuman.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?php echo ($currentPage === 'pengumuman.php') ? $activeClass : $inactiveClass; ?>">
+        <a href="pengumuman.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?= htmlspecialchars(($currentPage === 'pengumuman.php') ? $activeClass : $inactiveClass, ENT_QUOTES, 'UTF-8'); ?>">
             <i class="fas fa-bullhorn fa-icon-sm mr-3"></i>
             Pengumuman
         </a>
 
-        <a href="materi.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?php echo ($currentPage === 'materi.php') ? $activeClass : $inactiveClass; ?>">
+        <a href="materi.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?= htmlspecialchars(($currentPage === 'materi.php') ? $activeClass : $inactiveClass, ENT_QUOTES, 'UTF-8'); ?>">
             <i class="fas fa-book-open fa-icon-sm mr-3"></i>
             Materi
         </a>
 
-        <a href="tugas.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?php echo ($currentPage === 'tugas.php') ? $activeClass : $inactiveClass; ?>">
+        <a href="tugas.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?= htmlspecialchars(($currentPage === 'tugas.php') ? $activeClass : $inactiveClass, ENT_QUOTES, 'UTF-8'); ?>">
             <i class="fas fa-clipboard-list fa-icon-sm mr-3"></i>
             Tugas
         </a>
 
         <?php if ($role === 'guru'): ?>
-        <a href="manajemen_kelas.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?php echo ($currentPage === 'manajemen_kelas.php') ? $activeClass : $inactiveClass; ?>">
+        <a href="manajemen_kelas.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?= htmlspecialchars(($currentPage === 'manajemen_kelas.php') ? $activeClass : $inactiveClass, ENT_QUOTES, 'UTF-8'); ?>">
             <i class="fas fa-school fa-icon-sm mr-3"></i>
             Manajemen Kelas
         </a>
         <?php endif; ?>
 
-        <a href="rank.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?php echo ($currentPage === 'rank.php') ? $activeClass : $inactiveClass; ?>">
+        <a href="rank.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?= htmlspecialchars(($currentPage === 'rank.php') ? $activeClass : $inactiveClass, ENT_QUOTES, 'UTF-8'); ?>">
             <i class="fas fa-trophy fa-icon-sm mr-3"></i>
             Peringkat
         </a>
 
-        <a href="pengaturan.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?php echo ($currentPage === 'pengaturan.php') ? $activeClass : $inactiveClass; ?>">
+        <a href="pengaturan.php" class="sidebar-link flex items-center p-3 rounded-lg text-sm <?= htmlspecialchars(($currentPage === 'pengaturan.php') ? $activeClass : $inactiveClass, ENT_QUOTES, 'UTF-8'); ?>">
             <i class="fas fa-user-cog fa-icon-sm mr-3"></i>
             Pengaturan
         </a>
