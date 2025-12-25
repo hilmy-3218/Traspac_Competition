@@ -282,7 +282,7 @@ function getFileIcon(string $path, string $mime): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halaman Tugas | <?= $jurusan ?></title>
+    <title>Halaman Tugas | <?= htmlspecialchars($jurusan, ENT_QUOTES, 'UTF-8'); ?></title>
     <link rel="shortcut icon" href="../assets/images/logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLMDJzLcl98jS290e2D91X3wR50wU138Vz1N1K/2T0M7Cg+lqj2Q/9Zf+A5I9+Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -760,4 +760,5 @@ function getFileIcon(string $path, string $mime): string {
 
     <script src="../assets/js/tugas.js"></script>
 </body>
+
 </html>
