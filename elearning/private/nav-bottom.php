@@ -23,16 +23,14 @@ if (basename($_SERVER['PHP_SELF']) === basename(__FILE__)) {
         <?php foreach ($navItems as $item): 
             $isActive = ($currentPage === $item['file']);
         ?>
-            <a href="<?= BASE_URL . $item['file']; ?>" 
+            <a href="<?= htmlspecialchars(BASE_URL . $item['file'], ENT_QUOTES, 'UTF-8'); ?>" 
                class="w-1/4 h-full flex flex-col items-center justify-center transition-colors duration-200
-               <?= $isActive ? 'text-blue-400' : 'text-gray-300 hover:text-white'; ?>">
-
+               <?= htmlspecialchars($isActive ? 'text-blue-400' : 'text-gray-300 hover:text-white', ENT_QUOTES, 'UTF-8'); ?>">
                 <!-- Icon -->
-                <i class="text-base mb-0.5 <?= $item['icon']; ?>"></i>
-
+                <i class="text-base mb-0.5 <?= htmlspecialchars($item['icon'], ENT_QUOTES, 'UTF-8'); ?>"></i>
                 <!-- Nama -->
-                <span class="text-xs font-medium <?= $isActive ? 'font-semibold' : ''; ?>">
-                    <?= $item['name']; ?>
+                <span class="text-xs font-medium <?= htmlspecialchars($isActive ? 'font-semibold' : '', ENT_QUOTES, 'UTF-8'); ?>">
+                    <?= htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8'); ?>
                 </span>
             </a>
         <?php endforeach; ?>
@@ -110,3 +108,4 @@ if (basename($_SERVER['PHP_SELF']) === basename(__FILE__)) {
     history.back();
   }
 </script>
+
