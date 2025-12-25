@@ -12,7 +12,6 @@ $user_id = $_SESSION['user_id'];
 
 try {
     // Autentikasi dan ambil data pengguna
-    // Diasumsikan $pdo tersedia dari include '../../config/db.php';
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = :id LIMIT 1");
     $stmt->execute(['id' => $user_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -59,7 +58,6 @@ try {
     }
 
     // FIX: FOTO PROFIL
-    // Path harus relatif dari profil.php ke root proyek, lalu ke gambar
     $foto = (!empty($user['foto_profil']))
         ? "../../" . htmlspecialchars($user['foto_profil']) 
         : null; 
@@ -158,12 +156,37 @@ try {
                             /* Kelas Glassmorphism Kustom */
                             bg-white/20 backdrop-blur-md border border-white/30 shadow-2xl">
 
-        <?php if (isset($_GET['success'])): ?>
-            <div class="p-4 mb-6 bg-emerald-500 text-white rounded-xl text-center shadow-lg">
-                <p class="font-bold">🎉 Berhasil!</p>
-                <p class="text-sm">Profil berhasil diperbarui.</p>
-            </div>
-        <?php endif; ?>
+        <div id="notification-area">
+            <?php if (isset($_GET['success'])): ?>
+                <div class="p-4 mb-6 bg-emerald-500 text-white rounded-xl text-center shadow-lg border border-emerald-400">
+                    <p class="font-bold">🎉 Berhasil!</p>
+                    <p class="text-sm">Profil berhasil diperbarui.</p>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['error'])): ?>
+                <div class="p-4 mb-6 bg-red-500 text-white rounded-xl text-center shadow-lg border border-red-400">
+                    <p class="font-bold">⚠️ Gagal!</p>
+                    <p class="text-sm">
+                        <?php 
+                            switch($_GET['error']) {
+                                case 'format':
+                                    echo "Format foto tidak didukung. Gunakan JPG, PNG atau WEBP.";
+                                    break;
+                                case 'size':
+                                    echo "Ukuran foto terlalu besar! Maksimal 2MB.";
+                                    break;
+                                case 'invalid':
+                                    echo "File yang diunggah bukan gambar yang valid.";
+                                    break;
+                                default:
+                                    echo "Terjadi kesalahan saat memperbarui profil.";
+                            }
+                        ?>
+                    </p>
+                </div>
+            <?php endif; ?>
+        </div>
 
         <div id="viewProfileContainer" class="space-y-6">
             <h2 class="text-2xl font-extrabold text-center text-gray-800 tracking-tight mb-6">
