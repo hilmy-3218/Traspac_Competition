@@ -1,0 +1,68 @@
+/* 1. Global & Body Styles */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #f0f9ff;
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(199,100%,93%,1) 0px, transparent 70%), 
+        radial-gradient(at 100% 0%, hsla(187,100%,92%,1) 0px, transparent 70%), 
+        radial-gradient(at 100% 100%, hsla(199,100%,90%,1) 0px, transparent 70%), 
+        radial-gradient(at 0% 100%, hsla(187,100%,92%,1) 0px, transparent 70%);
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+}
+
+/* 2. Glassmorphism Card Effect */
+.glass-card {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+    border-radius: 16px; 
+}
+
+/* 3. Decorative Animated Shapes */
+.shape {
+    position: fixed;
+    z-index: -1;
+    filter: blur(100px);
+    opacity: 0.4;
+    pointer-events: none;
+    animation: move 25s infinite alternate ease-in-out;
+}
+
+@keyframes move {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(80px, 40px) scale(1.1); }
+}
+
+/* 4. Interactive Elements (Inputs/Buttons) */
+.input-focus-effect {
+    transition: all 0.2s ease-in-out;
+}
+
+.input-focus-effect:focus {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    outline: none;
+}
+
+/* 5. Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #0891b2; 
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #0e7490;
+}
