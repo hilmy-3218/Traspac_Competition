@@ -143,8 +143,9 @@ if ($is_link_valid && $_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <p class="text-center text-slate-400 text-xs mt-8">
-            2026 E-Learning SMK System.
+            2026 E-Learning SMK.
         </p>
     </div>
 </body>
+
 </html>
