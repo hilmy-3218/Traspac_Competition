@@ -250,8 +250,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <p class="text-center text-slate-400 text-[10px] mt-8 uppercase tracking-[0.3em] font-medium">
-            2026 SMK Learn
+            2026 E-Learning SMK.
         </p>
     </div>
 </body>
+
 </html>
