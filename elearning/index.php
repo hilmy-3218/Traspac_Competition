@@ -55,7 +55,7 @@
         <!-- Tambahkan ID ke section agar dapat dilacak IntersectionObserver -->
         <section id="home-page" class="bg-white">
             <!-- HERO SECTION (Latar Belakang Terang) -->
-            <div class="min-h-[85vh] py-28 px-4 md:py-40 relative overflow-hidden bg-cover bg-center"
+            <div class="min-h-[92vh] py-28 px-4 md:py-40 relative overflow-hidden bg-cover bg-center"
                 style="background-image: url('assets/images/siswa.webp');">
                 <!-- Overlay putih transparan -->
                 <div class="absolute inset-0 bg-white/25"></div>
@@ -387,3 +387,4 @@
 </body>
 
 </html>
+
