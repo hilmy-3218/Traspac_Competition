@@ -17,7 +17,9 @@
     <div id="top-loader" class="fixed top-0 left-0 h-[3px] w-0 bg-blue-600 z-[9999] transition-all duration-300"></div>
 
     <!-- HEADER/NAVIGASI (Tetap Sticky) -->
-    <header class="p-4 bg-white shadow-md sticky top-0 z-50">
+    <header class="p-4 sticky top-0 z-50 
+        bg-white/70 backdrop-blur-md 
+        shadow-md border-b border-white/30">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <!-- Logo -->
             <div class="text-xl font-extrabold text-gray-800 cursor-pointer" onclick="scrollToSection('home-page')">
@@ -383,4 +385,5 @@
     <!-- JavaScript Navigasi, Form Handling, Modal, Scroll Animation dan chat bot -->
     <script src="assets/js/index.js"></script>
 </body>
+
 </html>
